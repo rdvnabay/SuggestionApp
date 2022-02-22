@@ -12,7 +12,7 @@ public class Suggestion
     public bool ApprovedForRelease { get; set; } = false;
     public bool Archived { get; set; } = false;
     public bool Rejected { get; set; } = false;
-    HashSet<string> UserVotes { get; set; } = new();
+    public HashSet<string> UserVotes { get; set; } = new();
 
     public BasicUser Author { get; set; }
     public Category Category { get; set; }
