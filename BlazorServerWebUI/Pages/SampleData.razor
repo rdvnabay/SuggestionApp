@@ -1,0 +1,189 @@
+﻿@page "/SampleData"
+
+
+@inject ICategoryRepository categoryRepository
+@inject IStatusRepository statusRepository
+@inject IUserRepository userRepository
+@inject ISuggestionRepository suggestionRepository
+
+<h3>SampleData</h3>
+
+
+@if (categoriesCreated)
+{
+    <h4>Categories have been created</h4>
+}
+else
+{
+    <button class="btn btn-primary" @onclick="CreateCategories">CreateCategories</button>
+}
+
+@if (statutesCreated)
+{
+    <h4>Statuses have been created</h4>
+}
+else
+{
+    <button class="btn btn-primary" @onclick="CreateStatuses">CreateStatuses</button>
+}
+
+<button class="btn btn-danger"  @onclick="GenerateSampleData">Generate Sample Data</button>
+
+
+
+@code {
+    private bool categoriesCreated = false;
+    private bool statutesCreated = false;
+
+    private async Task GenerateSampleData()
+    {
+        User user = new()
+            {
+                FirstName = "Rıdvan",
+                LastName = "Abay",
+                DisplayName = "Rıdvan Abay",
+                EmailAddress = "test@mail.com",
+                ObjectIdentifier = "abc-123"
+            };
+        await userRepository.CreateUser(user);
+
+        var foundUser = await userRepository.GetUserFromAuthentication("abc-123");
+        var categories = await categoryRepository.GetAllCategoriesAsync();
+        var statuses = await statusRepository.GetAllStatusAsync();
+        HashSet<string> votes = new();
+        votes.Add("1");
+        votes.Add("2");
+        votes.Add("3");
+
+        Suggestion suggestion = new()
+            {
+                Author = new BasicUser(foundUser),
+                Category = categories[0],
+                Title = "Our First Suggestion",
+                Description = "This is a suggestion created by the sample data generation method."
+            };
+        await suggestionRepository.CreateSuggestion(suggestion);
+
+        suggestion = new()
+            {
+                Author = new BasicUser(foundUser),
+                Category = categories[1],
+                Title = "Our Second Suggestion",
+                Description = "This is a suggestion created by the sample data generation method.",
+                Status = statuses[0],
+                OwnerNotes = "This is the note for the status.",
+                ApprovedForRelease = true
+            };
+        await suggestionRepository.CreateSuggestion(suggestion);
+
+        suggestion = new()
+            {
+                Author = new BasicUser(foundUser),
+                Category = categories[2],
+                Title = "Our Third Suggestion",
+                Description = "This is a suggestion created by the sample data generation method.",
+                Status = statuses[1],
+                OwnerNotes = "This is the note for the status.",
+                ApprovedForRelease = true
+            };
+        await suggestionRepository.CreateSuggestion(suggestion);
+
+        suggestion = new()
+            {
+                Author = new BasicUser(foundUser),
+                Category = categories[3],
+                Title = "Our Fourth Suggestion",
+                Description = "This is a suggestion created by the sample data generation method.",
+                Status = statuses[2],
+                OwnerNotes = "This is the note for the status.",
+                UserVotes = votes,
+                ApprovedForRelease = true
+
+            };
+        await suggestionRepository.CreateSuggestion(suggestion);
+
+        votes.Add("4");
+        suggestion = new()
+            {
+                Author = new BasicUser(foundUser),
+                Category = categories[4],
+                Title = "Our Fifth Suggestion",
+                Description = "This is a suggestion created by the sample data generation method.",
+                Status = statuses[3],
+                OwnerNotes = "This is the note for the status.",
+                UserVotes = votes,
+                ApprovedForRelease = true
+            };
+        await suggestionRepository.CreateSuggestion(suggestion);
+    }
+   
+
+    private async Task CreateCategories()
+    {
+        var categories = await categoryRepository.GetAllCategoriesAsync();
+        if (categories?.Count > 0) return;
+
+
+        Category category = new()
+            {
+                Name = "Courses",
+                Description = "Full paid courses"
+            };
+        await categoryRepository.CreateCategory(category);
+
+        category = new()
+            {
+                Name = "Dev Questions",
+                Description = "Advice on being a developer"
+            };
+        await categoryRepository.CreateCategory(category);
+
+        category = new()
+            {
+                Name = "10-Minute Training",
+                Description = "A quick \"How do I use this?\" video."
+            };
+        await categoryRepository.CreateCategory(category);
+
+        category = new()
+            {
+                Name = "Other",
+                Description = "Not sure which category this fits in."
+            };
+        await categoryRepository.CreateCategory(category);
+    }
+
+    private async Task CreateStatuses()
+    {
+        var statuses = await statusRepository.GetAllStatusAsync();
+        if (statuses?.Count > 0) return;
+
+        Status status = new Status()
+            {
+                Name = "Completed",
+                Description = ""
+            };
+        await statusRepository.CreateStatus(status);
+
+        status = new()
+            {
+                Name = "Watching",
+                Description = "The suggestion is interesting. We are watching to see how much ..."
+            };
+        await statusRepository.CreateStatus(status);
+
+        status = new()
+            {
+                Name = "Upcoming",
+                Description = "The suggestion was accepted and it will be released soon."
+            };
+        await statusRepository.CreateStatus(status);
+
+        status = new()
+            {
+                Name = "Dismissed",
+                Description = "The suggestion was something that we are going to undertake."
+            };
+        await statusRepository.CreateStatus(status);
+    }
+}
